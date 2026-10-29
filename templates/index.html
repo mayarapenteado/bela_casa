@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Início{% endblock %}
+{% block conteudo %}
+<h1>Olá, seja bem-vinda!</h1>
+<p class="sub">Aqui você gerencia seus clientes, pedidos e acompanha o desempenho do seu negócio.</p>
+
+<section class="cartoes" aria-label="Resumo">
+  <div class="cartao"><span>Total de clientes</span><strong>{{ resumo.clientes }}</strong></div>
+  <div class="cartao"><span>Pedidos do mês</span><strong>{{ resumo.pedidos_mes }}</strong></div>
+  <div class="cartao"><span>Pedidos entregues</span><strong>{{ resumo.entregues }}</strong></div>
+  <div class="cartao"><span>Pedidos em aberto</span><strong>{{ resumo.abertos }}</strong></div>
+</section>
+
+<section class="painel">
+  <div class="painel-topo">
+    <h2>Pedidos recentes</h2>
+    <a href="{{ url_for('pedidos') }}">Ver todos</a>
+  </div>
+  {% if recentes %}
+  <div class="tabela-rolagem">
+    <table>
+      <caption class="so-leitor">Cinco pedidos mais recentes</caption>
+      <thead><tr><th scope="col">Nº</th><th scope="col">Cliente</th><th scope="col">Data</th><th scope="col">Status</th><th scope="col" class="dir">Valor</th></tr></thead>
+      <tbody>
+      {% for p in recentes %}
+        <tr>
+          <td><a href="{{ url_for('pedido_detalhe', pedido_id=p.id) }}">#{{ '%05d' % p.id }}</a></td>
+          <td>{{ p.cliente }}</td>
+          <td>{{ p.data|databr }}</td>
+          <td><span class="selo selo-{{ p.status|classe_status }}">{{ p.status }}</span></td>
+          <td class="dir">{{ p.total|brl }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="vazio">Nenhum pedido registrado ainda. <a href="{{ url_for('pedido_novo') }}">Registrar o primeiro pedido</a>.</p>
+  {% endif %}
+</section>
+
+<p class="acoes">
+  <a class="btn" href="{{ url_for('pedido_novo') }}">Novo pedido</a>
+  <a class="btn btn-claro" href="{{ url_for('cliente_form') }}">Novo cliente</a>
+</p>
+{% endblock %}

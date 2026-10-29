@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar cliente' if editando else 'Cadastro de clientes' }}{% endblock %}
+
+{% macro campo(nome, rotulo, tipo='text', extra='') %}
+  <div class="campo">
+    <label for="{{ nome }}">{{ rotulo }} *</label>
+    <input id="{{ nome }}" name="{{ nome }}" type="{{ tipo }}" value="{{ dados.get(nome, '') }}" required
+           {% if erros.get(nome) %}aria-invalid="true" aria-describedby="erro-{{ nome }}"{% endif %} {{ extra|safe }}>
+    {% if erros.get(nome) %}<span class="erro" id="erro-{{ nome }}">{{ erros[nome] }}</span>{% endif %}
+  </div>
+{% endmacro %}
+
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>{{ 'Editar cliente' if editando else 'Cadastro de clientes' }}</h1>
+  <a href="{{ url_for('clientes') }}">Voltar</a>
+</div>
+
+<form method="post" class="painel" novalidate id="form-cliente">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+  <fieldset>
+    <legend>Dados pessoais</legend>
+    <div class="grade">
+      {{ campo('nome', 'Nome completo', extra='autocomplete="name" placeholder="Digite o nome completo"') }}
+      {{ campo('cpf', 'CPF', extra='inputmode="numeric" maxlength="14" placeholder="000.000.000-00" data-mascara="cpf"') }}
+      {{ campo('telefone', 'Telefone', 'tel', 'maxlength="15" placeholder="(11) 99999-9999" data-mascara="telefone"') }}
+      {{ campo('email', 'E-mail', 'email', 'placeholder="exemplo@email.com"') }}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Endereço</legend>
+    <div class="grade">
+      <div class="campo">
+        <label for="cep">CEP *</label>
+        <div class="linha">
+          <input id="cep" name="cep" value="{{ dados.get('cep', '') }}" required inputmode="numeric"
+                 maxlength="9" placeholder="00000-000" data-mascara="cep"
+                 {% if erros.get('cep') %}aria-invalid="true" aria-describedby="erro-cep"{% endif %}>
+          <button type="button" class="btn btn-claro" id="btn-cep">Consultar CEP</button>
+        </div>
+        <span class="erro" id="erro-cep" {% if not erros.get('cep') %}hidden{% endif %}>{{ erros.get('cep', '') }}</span>
+        <span class="info" id="msg-cep" role="status"></span>
+      </div>
+      {{ campo('logradouro', 'Logradouro', extra='placeholder="Rua, Avenida, etc."') }}
+      {{ campo('numero', 'Número') }}
+      {{ campo('bairro', 'Bairro') }}
+      {{ campo('cidade', 'Cidade') }}
+      <div class="campo">
+        <label for="estado">Estado *</label>
+        <select id="estado" name="estado" required {% if erros.get('estado') %}aria-invalid="true" aria-describedby="erro-estado"{% endif %}>
+          <option value="">Selecione</option>
+          {% for uf in estados %}<option value="{{ uf }}" {{ 'selected' if dados.get('estado') == uf }}>{{ uf }}</option>{% endfor %}
+        </select>
+        {% if erros.get('estado') %}<span class="erro" id="erro-estado">{{ erros['estado'] }}</span>{% endif %}
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="acoes">
+    <a class="btn btn-claro" href="{{ url_for('clientes') }}">Cancelar</a>
+    <button class="btn" type="submit">Salvar</button>
+  </div>
+</form>
+{% endblock %}

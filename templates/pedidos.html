@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block titulo %}Consulta de pedidos{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Consulta de pedidos</h1>
+  <a class="btn" href="{{ url_for('pedido_novo') }}">Novo pedido</a>
+</div>
+
+<form class="filtros" method="get" role="search">
+  <div class="campo campo-largo">
+    <label for="q">Buscar por nº do pedido, cliente ou produto</label>
+    <input id="q" name="q" value="{{ f.q }}">
+  </div>
+  <div class="campo">
+    <label for="cliente">Cliente</label>
+    <select id="cliente" name="cliente">
+      <option value="">Todos</option>
+      {% for c in clientes %}<option value="{{ c.id }}" {{ 'selected' if f.cliente == c.id|string }}>{{ c.nome }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="campo">
+    <label for="ini">De</label>
+    <input id="ini" name="ini" type="date" value="{{ f.ini }}">
+  </div>
+  <div class="campo">
+    <label for="fim">Até</label>
+    <input id="fim" name="fim" type="date" value="{{ f.fim }}">
+  </div>
+  <div class="campo">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">Todos</option>
+      {% for s in status %}<option {{ 'selected' if f.status == s }}>{{ s }}</option>{% endfor %}
+    </select>
+  </div>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+
+<section class="painel">
+  {% if pedidos %}
+  <div class="tabela-rolagem">
+    <table>
+      <caption class="so-leitor">Pedidos encontrados</caption>
+      <thead><tr>
+        <th scope="col">Nº</th><th scope="col">Cliente</th><th scope="col">Data</th>
+        <th scope="col">Produto</th><th scope="col">Status</th><th scope="col" class="dir">Valor</th><th scope="col">Ações</th>
+      </tr></thead>
+      <tbody>
+      {% for p in pedidos %}
+        <tr>
+          <td>#{{ '%05d' % p.id }}</td>
+          <td>{{ p.cliente }}</td>
+          <td>{{ p.data|databr }}</td>
+          <td>{{ p.produto }}</td>
+          <td><span class="selo selo-{{ p.status|classe_status }}">{{ p.status }}</span></td>
+          <td class="dir">{{ p.total|brl }}</td>
+          <td><a class="btn btn-pequeno btn-claro" href="{{ url_for('pedido_detalhe', pedido_id=p.id) }}">Ver detalhes</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rodape-tabela">
+    <nav class="paginacao" aria-label="Paginação">
+      {% for n in range(1, paginas + 1) %}
+        {% if n == pagina_atual %}
+          <span aria-current="page">{{ n }}</span>
+        {% else %}
+          <a href="{{ url_for('pedidos', p=n, **args_pag) }}">{{ n }}</a>
+        {% endif %}
+      {% endfor %}
+    </nav>
+    <span>Total de {{ total }} pedido(s)</span>
+  </div>
+  {% else %}
+    <p class="vazio">Nenhum pedido encontrado com esses filtros.</p>
+  {% endif %}
+</section>
+{% endblock %}

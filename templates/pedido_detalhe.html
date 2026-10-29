@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Pedido #{{ '%05d' % pedido.id }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Pedido #{{ '%05d' % pedido.id }}</h1>
+  <a href="{{ url_for('pedidos') }}">Voltar</a>
+</div>
+
+<section class="painel">
+  <dl class="detalhes">
+    <div><dt>Cliente</dt><dd>{{ pedido.cliente }}</dd></div>
+    <div><dt>Contato</dt><dd>{{ pedido.telefone|fone }} · {{ pedido.email }}</dd></div>
+    <div><dt>Data</dt><dd>{{ pedido.data|databr }}</dd></div>
+    <div><dt>Produto</dt><dd>{{ pedido.produto }}</dd></div>
+    <div><dt>Quantidade</dt><dd>{{ pedido.quantidade }}</dd></div>
+    <div><dt>Valor unitário</dt><dd>{{ pedido.valor_unitario|brl }}</dd></div>
+    <div><dt>Forma de pagamento</dt><dd>{{ pedido.forma_pagamento }}</dd></div>
+    <div><dt>Total</dt><dd><strong>{{ pedido.total|brl }}</strong></dd></div>
+    <div><dt>Observações</dt><dd>{{ pedido.observacoes or '—' }}</dd></div>
+    <div><dt>Status</dt><dd><span class="selo selo-{{ pedido.status|classe_status }}">{{ pedido.status }}</span></dd></div>
+  </dl>
+</section>
+
+<form method="post" action="{{ url_for('pedido_status', pedido_id=pedido.id) }}" class="filtros">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="campo">
+    <label for="status">Alterar status</label>
+    <select id="status" name="status">
+      {% for s in status %}<option {{ 'selected' if pedido.status == s }}>{{ s }}</option>{% endfor %}
+    </select>
+  </div>
+  <button class="btn" type="submit">Atualizar</button>
+</form>
+{% endblock %}

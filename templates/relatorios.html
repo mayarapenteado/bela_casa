@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block titulo %}Relatórios{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <h1>Relatórios</h1>
+    <p class="sub">Acompanhe o desempenho do seu negócio.</p>
+  </div>
+  <button type="button" class="btn" id="btn-imprimir">Exportar PDF</button>
+</div>
+
+<form class="filtros nao-imprimir" method="get">
+  <div class="campo"><label for="ini">De</label><input id="ini" name="ini" type="date" value="{{ ini }}"></div>
+  <div class="campo"><label for="fim">Até</label><input id="fim" name="fim" type="date" value="{{ fim }}"></div>
+  <div class="campo">
+    <label for="tipo">Tipo de relatório</label>
+    <select id="tipo" name="tipo">
+      <option value="vendas" {{ 'selected' if tipo == 'vendas' }}>Vendas</option>
+      <option value="clientes" {{ 'selected' if tipo == 'clientes' }}>Clientes</option>
+    </select>
+  </div>
+  <button class="btn" type="submit">Aplicar</button>
+</form>
+
+<p class="so-impressao">Período: {{ ini|databr }} a {{ fim|databr }}</p>
+
+<section class="cartoes" aria-label="Resumo do período">
+  <div class="cartao"><span>Total de clientes</span><strong>{{ clientes_total }}</strong></div>
+  <div class="cartao"><span>Total de pedidos</span><strong>{{ resumo.pedidos }}</strong></div>
+  <div class="cartao"><span>Faturamento</span><strong>{{ resumo.faturamento|brl }}</strong></div>
+  <div class="cartao"><span>Pedidos em aberto</span><strong>{{ abertos }}</strong></div>
+</section>
+<p class="info">Pedidos cancelados não entram no faturamento.</p>
+
+{% if tipo == 'vendas' %}
+<div class="duas-colunas">
+  <section class="painel">
+    <h2>Vendas por mês</h2>
+    {% if barras %}
+    <div class="grafico-barras" role="img"
+         aria-label="Faturamento por mês: {% for b in barras %}{{ b.rotulo }} {{ b.total|brl }}{{ '; ' if not loop.last }}{% endfor %}">
+      {% for b in barras %}
+        <div class="barra-item">
+          <span class="barra-valor">{{ b.total|brl }}</span>
+          <div class="barra" style="height: {{ b.altura }}%"></div>
+          <span class="barra-rotulo">{{ b.rotulo }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="vazio">Sem vendas no período.</p>{% endif %}
+  </section>
+
+  <section class="painel">
+    <h2>Formas de pagamento</h2>
+    {% if fatias %}
+    <div class="pizza-area">
+      <div class="pizza" style="background: {{ pizza }}" role="img"
+           aria-label="Distribuição por forma de pagamento: {% for f in fatias %}{{ f.forma }} {{ f.pct }}%{{ '; ' if not loop.last }}{% endfor %}"></div>
+      <ul class="legenda">
+        {% for f in fatias %}
+          <li><span class="cor" style="background: {{ f.cor }}"></span>{{ f.forma }} <strong>{{ f.pct }}%</strong></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}<p class="vazio">Sem vendas no período.</p>{% endif %}
+  </section>
+</div>
+
+<section class="painel">
+  <h2>Últimos pedidos</h2>
+  {% if ultimos %}
+  <div class="tabela-rolagem">
+    <table>
+      <thead><tr><th scope="col">Nº</th><th scope="col">Cliente</th><th scope="col">Data</th><th scope="col">Status</th><th scope="col" class="dir">Valor</th></tr></thead>
+      <tbody>
+      {% for p in ultimos %}
+        <tr>
+          <td>#{{ '%05d' % p.id }}</td><td>{{ p.cliente }}</td><td>{{ p.data|databr }}</td>
+          <td><span class="selo selo-{{ p.status|classe_status }}">{{ p.status }}</span></td>
+          <td class="dir">{{ p.total|brl }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="vazio">Sem pedidos no período.</p>{% endif %}
+</section>
+
+{% else %}
+<section class="painel">
+  <h2>Clientes que mais compraram</h2>
+  {% if top_clientes %}
+  <div class="tabela-rolagem">
+    <table>
+      <thead><tr><th scope="col">Cliente</th><th scope="col">Pedidos</th><th scope="col" class="dir">Total comprado</th></tr></thead>
+      <tbody>
+      {% for c in top_clientes %}
+        <tr><td>{{ c.nome }}</td><td>{{ c.pedidos }}</td><td class="dir">{{ c.total|brl }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="vazio">Sem pedidos no período.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

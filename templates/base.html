@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Início{% endblock %} | Bela Casa Presentes</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script>
+    // aplica as preferências de acessibilidade antes de desenhar a página
+    try {
+      var h = document.documentElement;
+      if (localStorage.getItem('contraste') === '1') h.classList.add('alto-contraste');
+      h.style.fontSize = (localStorage.getItem('fonte') || '100') + '%';
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="layout">
+    <aside class="lateral">
+      <div class="marca">
+        <span class="marca-icone" aria-hidden="true">&#8962;</span>
+        <strong>Bela Casa</strong>
+        <small>Presentes</small>
+      </div>
+
+      <nav aria-label="Menu principal">
+        <ul>
+          {% set itens = [
+            ('inicio', 'inicio', 'Início', '1'),
+            ('clientes', 'clientes', 'Clientes', '2'),
+            ('pedidos', 'pedidos', 'Pedidos', '3'),
+            ('produtos', 'produtos', 'Produtos', '4'),
+            ('relatorios', 'relatorios', 'Relatórios', '5'),
+            ('configuracoes', 'configuracoes', 'Configurações', '6') ] %}
+          {% if eh_admin %}
+            {% set itens = itens + [('colaboradores', 'colaboradores', 'Colaboradores', '7')] %}
+          {% endif %}
+          {% for chave, rota, texto, tecla in itens %}
+          <li>
+            <a href="{{ url_for(rota) }}" data-tecla="{{ tecla }}" accesskey="{{ tecla }}"
+               {% if pagina == chave %}aria-current="page"{% endif %}>{{ texto }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </nav>
+
+      <details class="acessibilidade">
+        <summary>Acessibilidade</summary>
+        <div class="acess-opcoes">
+          <button type="button" id="btn-contraste" aria-pressed="false">Alto contraste</button>
+          <button type="button" id="btn-fonte-mais">Aumentar letra (A+)</button>
+          <button type="button" id="btn-fonte-menos">Diminuir letra (A-)</button>
+          <p class="dica">Atalhos: Alt + o número do item para navegar pelo menu.</p>
+        </div>
+      </details>
+    </aside>
+
+    <div class="principal">
+      <header class="topo">
+        <a class="usuario" href="{{ url_for('configuracoes') }}" title="Meu perfil">{{ usuario_nome }}</a>
+        <form method="post" action="{{ url_for('sair') }}">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-claro">Sair</button>
+        </form>
+      </header>
+
+      <main id="conteudo" tabindex="-1">
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+          {% for categoria, texto in mensagens %}
+            <div class="aviso aviso-{{ categoria }}" role="{{ 'alert' if categoria == 'erro' else 'status' }}">{{ texto }}</div>
+          {% endfor %}
+        {% endwith %}
+        {% block conteudo %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

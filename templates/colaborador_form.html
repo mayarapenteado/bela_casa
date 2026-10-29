@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar colaborador' if editando else 'Novo colaborador' }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>{{ 'Editar colaborador' if editando else 'Novo colaborador' }}</h1>
+  <a href="{{ url_for('colaboradores') }}">Voltar</a>
+</div>
+
+<form method="post" class="painel" novalidate>
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="grade">
+    <div class="campo">
+      <label for="nome">Nome *</label>
+      <input id="nome" name="nome" value="{{ dados.get('nome', '') }}" required autocomplete="off"
+             {% if erros.get('nome') %}aria-invalid="true" aria-describedby="erro-nome"{% endif %}>
+      {% if erros.get('nome') %}<span class="erro" id="erro-nome">{{ erros['nome'] }}</span>{% endif %}
+    </div>
+
+    <div class="campo">
+      <label for="login">Login *</label>
+      <input id="login" name="login" value="{{ dados.get('login', '') }}" required autocomplete="off"
+             autocapitalize="none" spellcheck="false"
+             {% if erros.get('login') %}aria-invalid="true" aria-describedby="erro-login"{% endif %}>
+      {% if erros.get('login') %}<span class="erro" id="erro-login">{{ erros['login'] }}</span>{% endif %}
+    </div>
+
+    <div class="campo">
+      <label for="perfil">Perfil *</label>
+      <select id="perfil" name="perfil" required {% if erros.get('perfil') %}aria-invalid="true" aria-describedby="erro-perfil"{% endif %}>
+        {% for chave, rotulo in perfis.items() %}
+          <option value="{{ chave }}" {{ 'selected' if dados.get('perfil') == chave }}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+      <span class="info">Administrador também gerencia colaboradores e os dados da empresa.</span>
+      {% if erros.get('perfil') %}<span class="erro" id="erro-perfil">{{ erros['perfil'] }}</span>{% endif %}
+    </div>
+
+    <div class="campo">
+      <label for="senha">{{ 'Nova senha (deixe em branco para manter)' if editando else 'Senha *' }}</label>
+      <input id="senha" name="senha" type="password" autocomplete="new-password" minlength="8"
+             {{ '' if editando else 'required' }}
+             {% if erros.get('senha') %}aria-invalid="true" aria-describedby="erro-senha"{% endif %}>
+      <span class="info">Mínimo de 8 caracteres.</span>
+      {% if erros.get('senha') %}<span class="erro" id="erro-senha">{{ erros['senha'] }}</span>{% endif %}
+    </div>
+  </div>
+
+  <div class="acoes">
+    <a class="btn btn-claro" href="{{ url_for('colaboradores') }}">Cancelar</a>
+    <button class="btn" type="submit">Salvar</button>
+  </div>
+</form>
+{% endblock %}

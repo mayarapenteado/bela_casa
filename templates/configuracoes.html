@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}Configurações{% endblock %}
+{% block conteudo %}
+<h1>Configurações</h1>
+<p class="sub">Gerencie o seu perfil, a senha e as informações da empresa.</p>
+
+<div class="duas-colunas">
+  <form method="post" class="painel">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="acao" value="nome">
+    <h2>Meu perfil</h2>
+    <div class="campo">
+      <label for="nome-perfil">Meu nome *</label>
+      <input id="nome-perfil" name="nome" value="{{ meu_nome }}" required autocomplete="name"
+             {% if erro_nome %}aria-invalid="true" aria-describedby="erro-nome-perfil"{% endif %}>
+      {% if erro_nome %}<span class="erro" id="erro-nome-perfil" role="alert">{{ erro_nome }}</span>{% endif %}
+    </div>
+    <p class="info">Login de acesso: <strong>{{ meu_login }}</strong></p>
+    <button class="btn" type="submit">Salvar nome</button>
+  </form>
+
+  <form method="post" class="painel">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="acao" value="empresa">
+    <h2>Dados da empresa</h2>
+    {% if not eh_admin %}<p class="info">Somente administradores podem alterar estes dados.</p>{% endif %}
+    <fieldset {{ 'disabled' if not eh_admin }}>
+    <div class="campo"><label for="nome_fantasia">Nome fantasia</label><input id="nome_fantasia" name="nome_fantasia" value="{{ dados.nome_fantasia }}"></div>
+    <div class="campo"><label for="razao_social">Razão social</label><input id="razao_social" name="razao_social" value="{{ dados.razao_social }}"></div>
+    <div class="campo"><label for="cnpj">CNPJ</label><input id="cnpj" name="cnpj" value="{{ dados.cnpj }}"></div>
+    <div class="campo"><label for="telefone">Telefone</label><input id="telefone" name="telefone" value="{{ dados.telefone }}"></div>
+    <div class="campo"><label for="email">E-mail</label><input id="email" name="email" type="email" value="{{ dados.email }}"></div>
+    <div class="campo"><label for="endereco">Endereço</label><input id="endereco" name="endereco" value="{{ dados.endereco }}"></div>
+    <div class="campo"><label for="bairro">Bairro</label><input id="bairro" name="bairro" value="{{ dados.bairro }}"></div>
+    <div class="campo"><label for="cidade">Cidade</label><input id="cidade" name="cidade" value="{{ dados.cidade }}"></div>
+    <div class="campo">
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado">
+        {% for uf in estados %}<option {{ 'selected' if dados.estado == uf }}>{{ uf }}</option>{% endfor %}
+      </select>
+    </div>
+    </fieldset>
+    {% if eh_admin %}<button class="btn" type="submit">Salvar alterações</button>{% endif %}
+  </form>
+
+  <form method="post" class="painel">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="acao" value="senha">
+    <h2>Alterar senha</h2>
+    {% if erro_senha %}<div class="aviso aviso-erro" role="alert">{{ erro_senha }}</div>{% endif %}
+    <div class="campo"><label for="atual">Senha atual *</label><input id="atual" name="atual" type="password" autocomplete="current-password" required></div>
+    <div class="campo"><label for="nova">Nova senha *</label><input id="nova" name="nova" type="password" autocomplete="new-password" minlength="8" required></div>
+    <div class="campo"><label for="confirmar">Confirmar nova senha *</label><input id="confirmar" name="confirmar" type="password" autocomplete="new-password" required></div>
+    <button class="btn" type="submit">Atualizar senha</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block titulo %}Cadastro de pedido{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Cadastro de pedido</h1>
+  <a href="{{ url_for('pedidos') }}">Voltar</a>
+</div>
+
+{% macro erro(nome) %}
+  {% if erros.get(nome) %}<span class="erro" id="erro-{{ nome }}">{{ erros[nome] }}</span>{% endif %}
+{% endmacro %}
+
+<form method="post" class="painel" novalidate>
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+  <fieldset>
+    <legend>Dados do pedido</legend>
+    <div class="grade">
+      <div class="campo">
+        <label for="cliente_id">Cliente *</label>
+        <div class="linha">
+          <select id="cliente_id" name="cliente_id" required {% if erros.get('cliente_id') %}aria-invalid="true" aria-describedby="erro-cliente_id"{% endif %}>
+            <option value="">Selecione um cliente</option>
+            {% for c in clientes %}
+              <option value="{{ c.id }}" {{ 'selected' if dados.get('cliente_id')|string == c.id|string }}>{{ c.nome }}</option>
+            {% endfor %}
+          </select>
+          <a class="btn btn-claro" href="{{ url_for('cliente_form') }}">Novo cliente</a>
+        </div>
+        {{ erro('cliente_id') }}
+      </div>
+
+      <div class="campo">
+        <label for="data">Data do pedido *</label>
+        <input id="data" name="data" type="date" value="{{ dados.get('data', '') }}" required
+               {% if erros.get('data') %}aria-invalid="true" aria-describedby="erro-data"{% endif %}>
+        {{ erro('data') }}
+      </div>
+
+      <div class="campo">
+        <label for="produto_id">Produto *</label>
+        <select id="produto_id" name="produto_id" required {% if erros.get('produto_id') %}aria-invalid="true" aria-describedby="erro-produto_id"{% endif %}>
+          <option value="" data-preco="">Selecione um produto</option>
+          {% for p in produtos %}
+            <option value="{{ p.id }}" data-preco="{{ '%.2f'|format(p.preco)|replace('.', ',') }}"
+                    {{ 'selected' if dados.get('produto_id')|string == p.id|string }}>{{ p.nome }}</option>
+          {% endfor %}
+        </select>
+        {{ erro('produto_id') }}
+        {% if not produtos %}<span class="info">Nenhum produto ativo. <a href="{{ url_for('produtos') }}">Cadastre um produto</a> antes.</span>{% endif %}
+      </div>
+
+      <div class="campo">
+        <label for="quantidade">Quantidade *</label>
+        <input id="quantidade" name="quantidade" type="number" min="1" value="{{ dados.get('quantidade', '1') }}" required
+               {% if erros.get('quantidade') %}aria-invalid="true" aria-describedby="erro-quantidade"{% endif %}>
+        {{ erro('quantidade') }}
+      </div>
+
+      <div class="campo">
+        <label for="valor_unitario">Valor unitário (R$) *</label>
+        <input id="valor_unitario" name="valor_unitario" inputmode="decimal" placeholder="0,00"
+               value="{{ dados.get('valor_unitario', '') }}" required
+               {% if erros.get('valor_unitario') %}aria-invalid="true" aria-describedby="erro-valor_unitario"{% endif %}>
+        {{ erro('valor_unitario') }}
+      </div>
+
+      <div class="campo">
+        <label for="forma_pagamento">Forma de pagamento *</label>
+        <select id="forma_pagamento" name="forma_pagamento" required {% if erros.get('forma_pagamento') %}aria-invalid="true" aria-describedby="erro-forma_pagamento"{% endif %}>
+          <option value="">Selecione</option>
+          {% for f in pagamentos %}<option {{ 'selected' if dados.get('forma_pagamento') == f }}>{{ f }}</option>{% endfor %}
+        </select>
+        {{ erro('forma_pagamento') }}
+      </div>
+
+      <div class="campo">
+        <label for="status">Status do pedido *</label>
+        <select id="status" name="status" required>
+          {% for s in status %}<option {{ 'selected' if dados.get('status') == s }}>{{ s }}</option>{% endfor %}
+        </select>
+        {{ erro('status') }}
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="observacoes">Observações (opcional)</label>
+      <textarea id="observacoes" name="observacoes" rows="3" placeholder="Digite alguma observação...">{{ dados.get('observacoes', '') }}</textarea>
+    </div>
+
+    <p class="total-pedido" aria-live="polite">Total do pedido: <strong id="total-pedido">R$ 0,00</strong></p>
+  </fieldset>
+
+  <div class="acoes">
+    <a class="btn btn-claro" href="{{ url_for('pedidos') }}">Cancelar</a>
+    <button class="btn" type="submit">Registrar pedido</button>
+  </div>
+</form>
+{% endblock %}
