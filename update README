@@ -1,6 +1,15 @@
 # Bela Casa Presentes
 
-Projeto Integrador da UNIVESP. É um sistema simples para cadastrar clientes, produtos, pedidos e colaboradores, além de consultar relatórios.
+É um sistema para cadastrar clientes, produtos, pedidos e colaboradores, além de consultar relatórios.
+
+Este projeto Foi desenvolvido como parte das atividades da disciplina de Projeto Integrador da UNIVESP.
+
+Autores:
+  * Mariane Isabel de Souza, 
+  * Edson Jose Tonon Junior, 
+  * Alessandro Donizete dos Santos, 
+  * Mayara Carla Penteado, 
+  * Juliano Contessa
 
 ## Como executar no Windows
 
